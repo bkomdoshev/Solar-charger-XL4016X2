@@ -197,7 +197,7 @@ float wattHours_temp = 0; // PZ added
 float daily_wattHours = 0;
 unsigned long wattHours = 0;
 
-LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
+LiquidCrystal_I2C  lcd(0x27,20,4); // Set the LCD I2C address
 
 // Adafruit_HTU21DF htu = Adafruit_HTU21DF();
 
