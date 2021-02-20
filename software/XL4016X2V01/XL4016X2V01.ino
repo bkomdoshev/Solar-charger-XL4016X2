@@ -75,17 +75,17 @@
 //#define BAT_FLOAT 12.35                  // battery voltage we want to stop charging at
 
 const byte SOL_VOLTS_CHAN =0;               // defining the adc channel to read solar volts on A0
-const byte SOL_AMPS_CHAN =1;                // Defining the adc channel to read solar amps on A1
+const byte SOL_AMPS_CHAN1 =1;                // Defining the adc channel to read solar amps on A1
 const byte BAT_VOLTS_CHAN =2;               // defining the adc channel to read battery volts on A2
-const byte BUCK_AMPS_CHAN =3;               // Defining the adc channel to read battery amps on A3
-const byte BACK_LIGHT_PIN =6;               // pin A6 is used to control the lcd back light
-
+const byte BUCK_AMPS_CHAN1 =3;               // Defining the adc channel to read battery amps on A3
+const byte SOL_AMPS_CHAN2 =6;               // Defining the adc channel to read solar amps on A6
+const byte BUCK_AMPS_CHAN2 =7;              // Defining the adc channel to read battery amps on A7
 const byte DS18B20_pin = 2;  // D2 for One-wire to DS18B20 * 2
 const byte mains_pin = 3;    // D3 - Mains power control
 const byte load_pin = 4;     // D4 - Load control
 const byte greenLED_pin =5;  // D5 - Green LED  
 const byte redLED_pin = 6;   // D6 - Red LED 
-// D7 - Spare 
+const byte BACK_LIGHT_PIN =7;
 const byte sd_CS_pin =8;     // D8 - CS for SPI to micro SD card
 const byte pwm_buck2 = 9;    // D9 - PWM control of XL4016 #2
 const byte pwm_buck1 =10;    // D10 - PWM control of XL4016 #1
@@ -133,6 +133,10 @@ float buck_amps_previous = 0;
 
 float sol_amps;                       // solar amps
 float buck_amps;                      // solar amps
+float BUCK_ACS1 = 0;
+float BUCK_ACS2 = 0;
+float SOL_ACS1 = 0;
+float SOL_ACS1 = 0;
 
 float sol_volts;                      // solar volts
 float old_sol_volts = 0;
@@ -300,12 +304,20 @@ void read_data(void) {
   sol_volts = read_adc(SOL_VOLTS_CHAN) * SOL_VOLTS_SCALE;          // input of solar volts
   //  bat_volts = read_adc(BAT_VOLTS_CHAN) * BAT_VOLTS_SCALE;          // input of battery volts
   bat_volts = as100.analogReadSmooth(BAT_VOLTS_CHAN) * BAT_VOLTS_SCALE;
-
+  
+  //acs712 read current
+   BUCK_ACS1 = analogRead(BUCK_AMPS_CHAN1);
+    BUCK_ACS2 = analogRead(BUCK_AMPS_CHAN2);
+  SOL_ACS1 = analogRead(SOL_AMPS_CHAN1);
+    SOL_ACS2 = analogRead(SOL_AMPS_CHAN2);
+float BUCK_AMPS_CHAN = (BUCK_ACS2 - BUCK_ACS1)*(BUCK_AMPS_SCALE/.2);
+float SOL_AMPS_CHAN = (SOL_ACS2 - SOL_ACS1)*(SOL_AMPS_SCALE/.2);
+//acs712
 
   if (sol_volts > 9.5) {
     //  TURN_ON_ACS;    // Moved to Power_Save void
-    buck_amps = 25.00 - (read_adc(BUCK_AMPS_CHAN) * BUCK_AMPS_SCALE); // input of solar amps
-    sol_amps = 25.05 - (read_adc(SOL_AMPS_CHAN) * SOL_AMPS_SCALE);    // input of solar amps
+    buck_amps = 25.00 - ((BUCK_AMPS_CHAN) * BUCK_AMPS_SCALE); // input of solar amps
+    sol_amps = 25.05 - ((SOL_AMPS_CHAN) * SOL_AMPS_SCALE);    // input of solar amps
   }
   else {
     //  TURN_OFF_ACS; // Moved to Power_Save void
